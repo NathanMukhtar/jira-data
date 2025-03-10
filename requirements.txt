@@ -1,0 +1,6 @@
+atlassian-python-api
+great-expectations
+pydantic
+loguru
+pytest
+pytest_mock
