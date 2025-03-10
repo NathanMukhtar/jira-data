@@ -1,6 +1,6 @@
 import pytest
 from pytest_mock import MockerFixture
-from jira_fetcher import JiraClient, JiraIssue, WorklogEntry
+from jira_project.jira_fetcher import JiraClient, JiraIssue, WorklogEntry
 
 # Constants for test data
 TEST_ISSUE_KEY = "TEST-1"
@@ -13,7 +13,7 @@ TEST_WORKLOG_COMMENT = "Worked on bugfix"
 @pytest.fixture
 def mock_jira_client(mocker: MockerFixture) -> JiraClient:
     # Patch the JiraClient class in the jira_fetcher module
-    mock_jira = mocker.patch("jira_fetcher.JiraClient", autospec=True)
+    mock_jira = mocker.patch("jira_project.jira_fetcher.JiraClient", autospec=True)
     # Get the instance of the mocked JiraClient
     mock_instance = mock_jira.return_value
 
