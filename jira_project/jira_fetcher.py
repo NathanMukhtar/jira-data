@@ -8,30 +8,35 @@ from jira_project.data_quality import validate_issues, validate_worklogs
 # Configure logger to write logs to a file with rotation and level settings
 logger.add("jira_project/logs/jira_fetcher.log", rotation="1 MB", level="INFO")
 
-# Define a model for worklog entries
 class WorklogEntry(BaseModel):
+    """Model for worklog entries."""
     author: str
     time_spent: str
     comment: Optional[str]
 
-# Define a model for Jira issues
 class JiraIssue(BaseModel):
+    """Model for Jira issues."""
     key: str
     summary: str
     worklogs: List[WorklogEntry] = []
 
-# Define a client to interact with Jira
 class JiraClient:
+    """Client to interact with Jira."""
     def __init__(self):
-        # Initialize Jira client with settings from configuration
+        """Initialize Jira client with settings from configuration."""
         self.jira = Jira(
             url=settings.jira_url,
             username=settings.jira_username,
             password=settings.jira_api_token.get_secret_value(),
         )
 
-    # Fetch issues from Jira along with their worklogs
     def fetch_issues_with_worklogs(self) -> List[JiraIssue]:
+        """
+        Fetch issues from Jira along with their worklogs.
+
+        Returns:
+            List[JiraIssue]: List of Jira issues with worklogs.
+        """
         logger.info("Fetching issues from Jira project: {}", settings.jira_project)
         start_at = 0
         all_issues = []
@@ -61,8 +66,16 @@ class JiraClient:
         logger.info(f"Total issues fetched: {len(all_issues)}")
         return all_issues
 
-    # Fetch a batch of issues from Jira
     def _fetch_issues(self, start_at: int) -> List[dict]:
+        """
+        Fetch a batch of issues from Jira.
+
+        Args:
+            start_at (int): The starting index for fetching issues.
+
+        Returns:
+            List[dict]: List of issues fetched from Jira.
+        """
         try:
             jql_query = f'project="{settings.jira_project}" ORDER BY created DESC'
             issues_response = self.jira.jql(jql_query, start=start_at, limit=settings.max_results)
@@ -71,8 +84,16 @@ class JiraClient:
             logger.error(f"Error fetching issues: {e}")
             return []
 
-    # Process a single issue to extract relevant information and worklogs
     def _process_issue(self, issue: dict) -> JiraIssue:
+        """
+        Process a single issue to extract relevant information and worklogs.
+
+        Args:
+            issue (dict): The issue data from Jira.
+
+        Returns:
+            JiraIssue: The processed Jira issue.
+        """
         issue_key = issue["key"]
         summary = issue["fields"]["summary"]
 
@@ -91,15 +112,22 @@ class JiraClient:
 
         return JiraIssue(key=issue_key, summary=summary, worklogs=worklog_entries)
 
-    # Fetch worklogs for a specific issue
     def _fetch_worklogs(self, issue_key: str) -> dict:
+        """
+        Fetch worklogs for a specific issue.
+
+        Args:
+            issue_key (str): The key of the issue.
+
+        Returns:
+            dict: The worklogs for the issue.
+        """
         try:
             return self.jira.get_issue_worklogs(issue_key)
         except Exception as e:
             logger.error(f"Error fetching worklogs for issue {issue_key}: {e}")
             return {}
 
-# Main execution block to fetch issues and their worklogs
 if __name__ == "__main__":
     client = JiraClient()
     issues = client.fetch_issues_with_worklogs()
