@@ -63,13 +63,33 @@ def multiple_issues() -> list[JiraIssue]:
         )
     ]
 
+# Fixture for no issues
+@pytest.fixture
+def no_issues() -> list[JiraIssue]:
+    return []
+
+# Fixture for issues without worklogs
+@pytest.fixture
+def issues_without_worklogs() -> list[JiraIssue]:
+    return [
+        JiraIssue(
+            key=TEST_ISSUE_KEY,
+            summary=TEST_ISSUE_SUMMARY,
+            worklogs=[]
+        )
+    ]
+
 # Fixture to provide issues data based on the parameter
 @pytest.fixture
-def issues_data(request, single_issue_with_worklog, multiple_issues) -> list[JiraIssue]:
+def issues_data(request, single_issue_with_worklog, multiple_issues, no_issues, issues_without_worklogs) -> list[JiraIssue]:
     if request.param == "single_issue_with_worklog":
         return single_issue_with_worklog
     elif request.param == "multiple_issues":
         return multiple_issues
+    elif request.param == "no_issues":
+        return no_issues
+    elif request.param == "issues_without_worklogs":
+        return issues_without_worklogs
     else:
         return []
 
@@ -86,7 +106,8 @@ def assert_issue_details(issue: JiraIssue, key: str, summary: str, worklog_autho
 @pytest.mark.parametrize("issues_data", [
     "single_issue_with_worklog",
     "multiple_issues",
-    ([]),
+    "no_issues",
+    "issues_without_worklogs",
 ], indirect=True)
 def test_fetch_issues_with_worklogs(mock_jira_client: JiraClient, issues_data: list[JiraIssue]) -> None:
     # Set up the return value for the fetch_issues_with_worklogs method
@@ -100,6 +121,11 @@ def test_fetch_issues_with_worklogs(mock_jira_client: JiraClient, issues_data: l
     
     # If there are issues, assert their details
     for i, issue in enumerate(issues_data):
-        assert_issue_details(issues[i], issue.key, issue.summary, issue.worklogs[0].author, issue.worklogs[0].time_spent, issue.worklogs[0].comment)
+        if issue.worklogs:
+            assert_issue_details(issues[i], issue.key, issue.summary, issue.worklogs[0].author, issue.worklogs[0].time_spent, issue.worklogs[0].comment)
+        else:
+            assert issues[i].key == issue.key
+            assert issues[i].summary == issue.summary
+            assert len(issues[i].worklogs) == 0
 
 # Additional test cases can be added here to improve test coverage
