@@ -1,6 +1,7 @@
 atlassian-python-api
 great-expectations
 pydantic
+pydantic-settings
 loguru
 pytest
 pytest_mock
