@@ -1,24 +1,12 @@
 from atlassian import Jira
 from loguru import logger
-from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 from jira_project.config import settings
 from jira_project.data_quality import validate_issues, validate_worklogs
+from jira_project.models import JiraIssue, WorklogEntry
 
 # Configure logger to write logs to a file with rotation and level settings
 logger.add("jira_project/logs/jira_fetcher.log", rotation="1 MB", level="INFO")
-
-class WorklogEntry(BaseModel):
-    """Model for worklog entries."""
-    author: str
-    time_spent: str
-    comment: Optional[str]
-
-class JiraIssue(BaseModel):
-    """Model for Jira issues."""
-    key: str
-    summary: str
-    worklogs: List[WorklogEntry] = []
 
 class JiraClient:
     """Client to interact with Jira."""
