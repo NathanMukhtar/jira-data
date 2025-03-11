@@ -2,7 +2,7 @@ import pandas as pd
 import great_expectations as gx
 from loguru import logger
 from typing import List
-from jira_project.jira_fetcher import JiraIssue, WorklogEntry
+from jira_project.models import JiraIssue, WorklogEntry
 
 def validate_issues(issues: List[JiraIssue]) -> None:
     """
