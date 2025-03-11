@@ -123,7 +123,7 @@ class JiraClient:
             dict: The worklogs for the issue.
         """
         try:
-            return self.jira.get_issue_worklogs(issue_key)
+            return self.jira.issue_get_worklog(issue_key)
         except Exception as e:
             logger.error(f"Error fetching worklogs for issue {issue_key}: {e}")
             return {}
