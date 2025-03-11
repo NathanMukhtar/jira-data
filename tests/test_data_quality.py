@@ -1,6 +1,6 @@
 import pytest
 from jira_project.data_quality import validate_issues, validate_worklogs
-from jira_project.jira_fetcher import JiraIssue, WorklogEntry
+from jira_project.models import JiraIssue, WorklogEntry
 
 def test_validate_issues_pass():
     issues = [JiraIssue(key="TEST-1", summary="Valid Issue", worklogs=[])]
